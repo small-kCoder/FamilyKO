@@ -1,0 +1,95 @@
+name: Build PCRetro (EXE + MSI)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:    # 允许在网页手动触发
+
+jobs:
+  build:
+    runs-on: windows-2022
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 安装 CMake
+        uses: lukka/get-cmake@latest
+
+      - name: 安装 vcpkg
+        uses: microsoft/setup-vcpkg@v1
+        with:
+          vcpkgGitCommitId: 7e5b7e59c0adc12de8d4c46d3cc25b2a73a72fbf
+
+      - name: 安装 SQLite3
+        run: vcpkg install sqlite3:x64-windows-static
+
+      - name: 安装 WiX 3.14
+        run: choco install wix --version=3.14.0 -y
+
+      - name: 配置 CMake
+        shell: cmd
+        run: |
+          mkdir build
+          cd build
+          cmake -G "Visual Studio 17 2022" -A x64 ^
+            -DCMAKE_BUILD_TYPE=Release ^
+            -DCMAKE_TOOLCHAIN_FILE="%VCPKG_ROOT%/scripts/buildsystems/vcpkg.cmake" ^
+            -DVCPKG_TARGET_TRIPLET=x64-windows-static ..
+        env:
+          VCPKG_ROOT: ${{ steps.setup-vcpkg.outputs.VCPKG_ROOT }}
+
+      - name: 编译
+        shell: cmd
+        run: |
+          cd build
+          cmake --build . --config Release --parallel
+
+      - name: 运行单元测试
+        shell: cmd
+        run: |
+          cd build
+          ctest -C Release --output-on-failure || exit /b 1
+
+      - name: 拷贝 EXE 到 dist
+        shell: cmd
+        run: |
+          if not exist dist mkdir dist
+          copy /Y build\Release\PCRetroUI.exe          dist\
+          copy /Y build\Release\PCRetroWatcher.exe     dist\
+          copy /Y build\Release\PCRetroInstaller.exe   dist\
+          copy /Y build\Release\PCRetroUninstaller.exe dist\
+          copy /Y installer\DISCLAIMER.txt             dist\
+          dir dist
+
+      - name: 打包 MSI
+        shell: cmd
+        run: |
+          if not exist dist\msi_obj mkdir dist\msi_obj
+          "C:\Program Files (x86)\WiX Toolset v3.14\bin\candle.exe" ^
+            -dPCRetroSrc="%CD%\dist" ^
+            -out "dist\msi_obj\\" ^
+            installer\wix\Product.wxs ^
+            installer\wix\UI.wxs
+          "C:\Program Files (x86)\WiX Toolset v3.14\bin\light.exe" ^
+            -ext WixUIExtension ^
+            -cultures:zh-CN ^
+            -out "dist\PCRetro-1.0.0.msi" ^
+            "dist\msi_obj\Product.wixobj"
+          dir dist
+
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: PCRetro-binaries
+          path: |
+            dist\PCRetroUI.exe
+            dist\PCRetroWatcher.exe
+            dist\PCRetroInstaller.exe
+            dist\PCRetroUninstaller.exe
+            dist\DISCLAIMER.txt
+            dist\PCRetro-1.0.0.msi
+          if-no-files-found: error
+          retention-days: 30

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <!-- 自定义 UI：强制显示免责声明 -->
+  <Fragment>
+    <UI Id="PCRetroUI">
+      <TextStyle Id="WixUI_Font_Normal" FaceName="Tahoma" Size="8" />
+      <TextStyle Id="WixUI_Font_Bigger"  FaceName="Tahoma" Size="12" />
+      <TextStyle Id="WixUI_Font_Title"   FaceName="Tahoma" Size="9" Bold="yes" />
+
+      <DialogRef Id="BrowseDlg" />
+      <DialogRef Id="DiskCostDlg" />
+      <DialogRef Id="ErrorDlg" />
+      <DialogRef Id="FatalError" />
+      <DialogRef Id="FilesInUse" />
+      <DialogRef Id="MsiRMFilesInUse" />
+      <DialogRef Id="PrepareDlg" />
+      <DialogRef Id="ProgressDlg" />
+      <DialogRef Id="ResumeDlg" />
+      <DialogRef Id="UserExit" />
+
+      <!-- 欢迎页 -->
+      <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="LicenseAgreementDlg" Order="2">1</Publish>
+      <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="InstallDirDlg" Order="3">NOT WixUI_InstallMode</Publish>
+
+      <!-- 许可证页：必须勾选接受才能 Next -->
+      <Dialog Id="LicenseAgreementDlg" Width="370" Height="270" Title="!(loc.LicenseAgreementDlg_Title)">
+        <Control Id="Banner" Type="Bitmap" X="0" Y="0" Width="370" Height="44"
+                 TabSkip="no" Text="!(loc.LicenseAgreementDlgBannerBitmap)" />
+        <Control Id="Title" Type="Text" X="15" Y="6" Width="340" Height="20"
+                 Transparent="yes" NoPrefix="yes">
+          <Text>{\WixUI_Font_Title}最终用户许可协议与免责声明</Text>
+        </Control>
+        <Control Id="LicenseText" Type="ScrollableText" X="20" Y="60" Width="330" Height="140"
+                 Sunken="yes" TabSkip="no">
+          <Text SourceFile="DISCLAIMER.txt" />
+        </Control>
+        <Control Id="LicenseAcceptCheckBox" Type="CheckBox" X="20" Y="210" Width="330" Height="14"
+                 Property="LicenseAccepted" CheckBoxValue="1"
+                 Text="我已阅读并同意上述声明">
+          <Publish Property="LicenseAccepted" Value="1" />
+        </Control>
+        <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17"
+                 Text="!(loc.WixUIBack)" />
+        <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17"
+                 Default="yes" Text="!(loc.WixUINext)">
+          <Publish Event="SpawnDialog" Value="NeedLicenseDlg">NOT LicenseAccepted</Publish>
+        </Control>
+        <Control Id="Cancel" Type="PushButton" X="304" Y="243" Height="17" Width="56"
+                 Cancel="yes" Text="!(loc.WixUICancel)">
+          <Publish Event="SpawnDialog" Value="CancelDlg" />
+        </Control>
+      </Dialog>
+
+      <!-- 未勾选接受时的弹窗 -->
+      <Dialog Id="NeedLicenseDlg" Width="260" Height="85" Title="需先同意声明">
+        <Control Id="Text" Type="Text" X="20" Y="20" Width="220" Height="20">
+          <Text>必须勾选"我已阅读并同意上述声明"才能继续安装。</Text>
+        </Control>
+        <Control Id="OK" Type="PushButton" X="100" Y="55" Width="56" Height="17"
+                 Default="yes" Cancel="yes" Text="确定">
+          <Publish Event="EndDialog" Value="Return">1</Publish>
+        </Control>
+      </Dialog>
+
+      <!-- 安装目录选择 -->
+      <Dialog Id="InstallDirDlg" Width="370" Height="270" Title="!(loc.InstallDirDlgTitle)">
+        <Control Id="Banner" Type="Bitmap" X="0" Y="0" Width="370" Height="44"
+                 TabSkip="no" Text="!(loc.InstallDirDlgBannerBitmap)" />
+        <Control Id="Title" Type="Text" X="15" Y="6" Width="340" Height="20"
+                 Transparent="yes" NoPrefix="yes">
+          <Text>{\WixUI_Font_Title}选择安装位置</Text>
+        </Control>
+        <Control Id="Description" Type="Text" X="15" Y="23" Width="340" Height="20"
+                 Transparent="yes" NoPrefix="yes">
+          <Text>点击"下一步"安装到默认文件夹，或在下方输入框中输入其他文件夹。</Text>
+        </Control>
+        <Control Id="FolderLabel" Type="Text" X="20" Y="60" Width="290" Height="20"
+                 NoPrefix="yes" Text="!(loc.InstallDirDlgFolderLabel)" />
+        <Control Id="Folder" Type="PathEdit" X="20" Y="80" Width="320" Height="20"
+                 Property="WIXUI_INSTALLDIR" Indirect="yes" />
+        <Control Id="ChangeFolder" Type="PushButton" X="20" Y="100" Width="56" Height="17"
+                 Text="!(loc.InstallDirDlgChange)" />
+        <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17"
+                 Text="!(loc.WixUIBack)" />
+        <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17"
+                 Default="yes" Text="!(loc.WixUINext)">
+          <Publish Event="SetTargetPath" Value="WIXUI_INSTALLDIR">1</Publish>
+          <Publish Event="NewDialog" Value="VerifyReadyDlg" Order="2">1</Publish>
+        </Control>
+        <Control Id="Cancel" Type="PushButton" X="304" Y="243" Height="17" Width="56"
+                 Cancel="yes" Text="!(loc.WixUICancel)">
+          <Publish Event="SpawnDialog" Value="CancelDlg" />
+        </Control>
+      </Dialog>
+
+      <Publish Dialog="InstallDirDlg" Control="Back" Event="NewDialog" Value="LicenseAgreementDlg">1</Publish>
+    </UI>
+  </Fragment>
+</Wix>

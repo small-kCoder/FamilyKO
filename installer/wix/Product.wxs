@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+  <Product Id="*"
+           Name="电脑回溯器（家长管控版）"
+           Version="1.0.0"
+           Manufacturer="PCRetro Project"
+           UpgradeCode="8A2C5B9D-1E3F-4D7A-B6C9-2E4F8A1B5C7D"
+           Language="2052">
+
+    <Package Id="*"
+             Keywords="Installer"
+             Description="家长对孩子电脑使用进行合法、透明管理的软件"
+             Manufacturer="PCRetro Project"
+             InstallerVersion="500"
+             Compressed="yes"
+             InstallScope="perMachine"
+             Languages="2052" />
+
+    <!-- 强制要求接受免责声明 -->
+    <WixVariable Id="WixUILicenseRtf" Value="DISCLAIMER.txt" />
+
+    <Media Id="1" Cabinet="PCRetro.cab" EmbedCab="yes" />
+
+    <!-- 目录结构 -->
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLDIR" Name="PCRetro">
+          <Component Id="PCRetroUI" Guid="A1B2C3D4-1111-1111-1111-111111111111">
+            <File Id="PCRetroUI" Source="bin/PCRetroUI.exe" KeyPath="yes" />
+            <ServiceControl Id="StartWatcher"
+                            Name="PCRetroWatcher"
+                            Start="install"
+                            Stop="both"
+                            Remove="uninstall"
+                            Wait="yes" />
+          </Component>
+          <Component Id="PCRetroWatcher" Guid="A1B2C3D4-2222-2222-2222-222222222222">
+            <File Id="PCRetroWatcher" Source="bin/PCRetroWatcher.exe" KeyPath="yes" />
+          </Component>
+          <Component Id="PCRetroUninstaller" Guid="A1B2C3D4-3333-3333-3333-333333333333">
+            <File Id="PCRetroUninstaller" Source="bin/PCRetroUninstaller.exe" KeyPath="yes" />
+          </Component>
+          <Component Id="Disclaimer" Guid="A1B2C3D4-4444-4444-4444-444444444444">
+            <File Id="Disclaimer" Source="DISCLAIMER.txt" KeyPath="yes" />
+          </Component>
+        </Directory>
+      </Directory>
+      <Directory Id="ProgramDataFolder">
+        <Directory Id="PCRetroDataDir" Name="PCRetro">
+          <Component Id="DataDir" Guid="A1B2C3D4-5555-5555-5555-555555555555">
+            <CreateFolder Directory="PCRetroDataDir">
+              <Permission User="Administrators" GenericAll="yes" />
+              <Permission User="SYSTEM" GenericAll="yes" />
+            </CreateFolder>
+            <RegistryKey Root="HKLM" Key="Software\PCRetro">
+              <RegistryValue Name="DataDir" Type="string" Value="[PCRetroDataDir]" KeyPath="yes" />
+            </RegistryKey>
+          </Component>
+        </Directory>
+      </Directory>
+    </Directory>
+
+    <Feature Id="PCRetroFeature" Title="电脑回溯器" Level="1">
+      <ComponentRef Id="PCRetroUI" />
+      <ComponentRef Id="PCRetroWatcher" />
+      <ComponentRef Id="PCRetroUninstaller" />
+      <ComponentRef Id="Disclaimer" />
+      <ComponentRef Id="DataDir" />
+    </Feature>
+
+    <!-- 安装时：先运行 PCRetroInstaller.exe 进行服务注册 -->
+    <CustomAction Id="RegisterService"
+                  FileKey="PCRetroInstaller"
+                  ExeCommand="&quot;[INSTALLDIR]PCRetroInstaller.exe&quot; /quiet"
+                  Return="check"
+                  Impersonate="no" />
+    <InstallExecuteSequence>
+      <Custom Action="RegisterService" After="InstallFiles">NOT Installed</Custom>
+    </InstallExecuteSequence>
+
+    <!-- 自定义 UI -->
+    <UI>
+      <UIRef Id="PCRetroUI" />
+    </UI>
+
+    <!-- 升级支持 -->
+    <Upgrade Id="8A2C5B9D-1E3F-4D7A-B6C9-2E4F8A1B5C7D">
+      <UpgradeVersion Minimum="0.0.0" Maximum="99.0.0" Property="OLDVERSION" />
+    </Upgrade>
+    <InstallExecuteSequence>
+      <RemoveExistingProducts After="InstallValidate" />
+    </InstallExecuteSequence>
+  </Product>
+</Wix>
