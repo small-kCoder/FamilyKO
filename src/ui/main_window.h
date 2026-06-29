@@ -3,6 +3,7 @@
 #define PCRETRO_UI_MAIN_WINDOW_H
 
 #include <windows.h>
+#include <stdbool.h>
 
 /* 创建主窗口（不显示） */
 HWND pcretro_main_window_create(HINSTANCE hInst);

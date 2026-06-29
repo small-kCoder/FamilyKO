@@ -53,7 +53,7 @@ HWND pcretro_ai_view_create(HWND parent) {
         WS_CHILD | WS_VISIBLE,
         10, 10, 160, 28, g_root, (HMENU)IDC_BTN, NULL, NULL);
 
-    g_edit = CreateWindowExW(WS_EX_CLIENTEDGE, L"EDIT", L"（点击"重新生成总结"按钮生成 AI 总结）",
+    g_edit = CreateWindowExW(WS_EX_CLIENTEDGE, L"EDIT", L"（点击\"重新生成总结\"按钮生成 AI 总结）",
         WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_READONLY | WS_VSCROLL | ES_AUTOVSCROLL,
         10, 50, 800, 400, g_root, (HMENU)IDC_EDIT, NULL, NULL);
 

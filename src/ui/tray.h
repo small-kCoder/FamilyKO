@@ -3,6 +3,7 @@
 #define PCRETRO_UI_TRAY_H
 
 #include <windows.h>
+#include <stdbool.h>
 
 bool pcretro_tray_init(HINSTANCE hInst);
 void pcretro_tray_shutdown(void);

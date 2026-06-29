@@ -9,12 +9,12 @@
 
 bool pcretro_dlg_set_password(HWND parent) {
     if (pcretro_password_is_initialized()) {
-        MessageBoxW(parent, L"已存在密码，请使用"修改密码"。", L"PCRetro", MB_ICONINFORMATION);
+        MessageBoxW(parent, L"已存在密码，请使用\"修改密码\"。", L"PCRetro", MB_ICONINFORMATION);
         return false;
     }
     if (MessageBoxW(parent,
         L"将设置默认演示密码：admin1234\r\n（首次安装时方便测试）\r\n\r\n"
-        L"实际部署后请立即通过"修改密码"改为强密码。\r\n\r\n是否继续？",
+        L"实际部署后请立即通过\"修改密码\"改为强密码。\r\n\r\n是否继续？",
         L"PCRetro", MB_OKCANCEL | MB_ICONINFORMATION) != IDOK) {
         return false;
     }
