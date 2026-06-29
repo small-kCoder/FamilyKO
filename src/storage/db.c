@@ -4,11 +4,7 @@
 #include <process.h>
 #include <stdarg.h>
 
-struct pcretro_db {
-    sqlite3* handle;
-    sqlite3_stmt* stmt_cache[16];
-    int stmt_count;
-};
+/* pcretro_db 结构体定义已在 db.h 中 */
 
 /* TLS：每线程独立连接 */
 static __declspec(thread) pcretro_db_t* tls_db = NULL;

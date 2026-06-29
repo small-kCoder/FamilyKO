@@ -5,6 +5,13 @@
 #include "../common.h"
 #include <sqlite3.h>
 
+/* pcretro_db 结构体定义（开放给同模块使用，避免在 .c 内部隐藏） */
+struct pcretro_db {
+    sqlite3* handle;
+    sqlite3_stmt* stmt_cache[16];
+    int stmt_count;
+};
+
 typedef struct pcretro_db pcretro_db_t;
 
 /* 打开/创建数据库。返回 0 成功，非 0 失败。 */
