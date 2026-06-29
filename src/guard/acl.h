@@ -2,6 +2,8 @@
 #ifndef PCRETRO_ACL_H
 #define PCRETRO_ACL_H
 
+#include <stdbool.h>
+
 bool pcretro_acl_protect_self(void);
 
 #endif

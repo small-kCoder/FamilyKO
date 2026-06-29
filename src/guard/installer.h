@@ -2,6 +2,8 @@
 #ifndef PCRETRO_GUARD_INSTALLER_H
 #define PCRETRO_GUARD_INSTALLER_H
 
+#include <stdbool.h>
+
 bool pcretro_service_install(void);
 bool pcretro_service_uninstall(void);
 bool pcretro_service_start(void);
