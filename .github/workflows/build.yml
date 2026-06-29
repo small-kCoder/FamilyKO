@@ -19,15 +19,16 @@ jobs:
         uses: lukka/get-cmake@latest
 
       - name: 安装 vcpkg
-        uses: microsoft/setup-vcpkg@v1
-        with:
-          vcpkgGitCommitId: 7e5b7e59c0adc12de8d4c46d3cc25b2a73a72fbf
+        run: |
+          git clone https://github.com/microsoft/vcpkg.git C:\vcpkg
+          C:\vcpkg\bootstrap-vcpkg.bat -disableMetrics
+          echo "VCPKG_ROOT=C:\vcpkg" >> $GITHUB_ENV
 
       - name: 安装 SQLite3
-        run: vcpkg install sqlite3:x64-windows-static
+        run: C:\vcpkg\vcpkg.exe install sqlite3:x64-windows-static
 
       - name: 安装 WiX 3.14
-        run: choco install wix --version=3.14.0 -y
+        run: choco install wix --version=3.14.0 -y --no-progress
 
       - name: 配置 CMake
         shell: cmd
@@ -36,10 +37,8 @@ jobs:
           cd build
           cmake -G "Visual Studio 17 2022" -A x64 ^
             -DCMAKE_BUILD_TYPE=Release ^
-            -DCMAKE_TOOLCHAIN_FILE="%VCPKG_ROOT%/scripts/buildsystems/vcpkg.cmake" ^
+            -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake ^
             -DVCPKG_TARGET_TRIPLET=x64-windows-static ..
-        env:
-          VCPKG_ROOT: ${{ steps.setup-vcpkg.outputs.VCPKG_ROOT }}
 
       - name: 编译
         shell: cmd
