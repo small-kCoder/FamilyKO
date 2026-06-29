@@ -27,11 +27,11 @@ jobs:
       - name: 安装 SQLite3
         run: C:\vcpkg\vcpkg.exe install sqlite3:x64-windows-static
 
-      - name: 安装 WiX 3.14
+      - name: 安装 WiX
+        shell: cmd
         run: |
-          Invoke-WebRequest -Uri "https://github.com/wixtoolset/wix3/releases/download/wix-3.14.0/wix-3.14.0.zip" -OutFile wix.zip -UseBasicParsing
-          Expand-Archive wix.zip -DestinationPath C:\wix
-          ls C:\wix
+          choco install wix -y --no-progress
+          dir "C:\Program Files (x86)\WiX Toolset v3.14\bin"
 
       - name: 配置 CMake
         shell: cmd
@@ -70,7 +70,7 @@ jobs:
         shell: cmd
         run: |
           if not exist dist\msi_obj mkdir dist\msi_obj
-          set WIX_BIN=C:\wix\wix-3.14.0\bin
+          set WIX_BIN=C:\Program Files (x86)\WiX Toolset v3.14\bin
           "%WIX_BIN%\candle.exe" ^
             -dPCRetroSrc="%CD%\dist" ^
             -out "dist\msi_obj\\" ^
